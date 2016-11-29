@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Test</title>
+</head>
+<body>
+    <div id="place-holder"></div>
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script>
+  $.getJSON("data/test-mac-full.json", function(data) {
+        var output="<ul>";
+        for (var x in data.departments) { 
+                for (var y in data.departments[x].courses) {
+            output+="<li>" + data.departments[x].name + " " + data.departments[x].courses[y].code + "--" + y + "</li>";        
+                }
+        }
+        output+="</ul>";
+ document.getElementById("place-holder").innerHTML=output;
+  });
+    </script>
+</body>
+</html>

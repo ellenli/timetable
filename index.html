@@ -1,0 +1,1380 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>The Timetable Generator</title>
+    <link href="css/style.css" rel="stylesheet"/>
+      
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!--- <script src="js/bootstrap.min.js"></script> --- inserted in footer ---->
+    
+    <!-- Select2 -->
+    <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.js'></script>
+    <link href="select2/select2.css" rel="stylesheet"/>
+    <link href="select2/select2-bootstrap-2.css" rel="stylesheet"/>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js" rel="stylesheet"/>
+    <script src="select2/select2.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/generator2.js"></script>
+    <script type="text/javascript" src="js/html2canvas.js"></script>
+    <script type="text/javascript" src="js/jquery.plugin.html2canvas.js"></script>
+    <script type="text/javascript">
+        function capture() {
+            $('#content').html2canvas({
+                onrendered: function (canvas) {
+                    $('#img_val').val(canvas.toDataURL("image/png;base64", 1));
+                    document.getElementById("myForm").submit();
+                }
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() { $("#select-courses-select").select2({
+          placeholder: "Select a course..",
+          formatNoMatches: function(term) {return "";},
+        }); });
+    </script>
+<script>
+  $.getJSON("data/mcmaster_2013_6.json", function(data) {
+        var output="<option></option>";
+        for (var x in data.departments) { 
+            output+="<optgroup label='" + data.departments[x].name + "'>";
+                for (var y in data.departments[x].courses) {
+            output+="<option value='>" + y + "'>" + x + " " + data.departments[x].courses[y].code + "</option>";        
+                }
+            output+="</optgroup>";
+        }
+        output+="";
+ document.getElementById("select-courses-select").innerHTML=output;
+  });
+    </script>
+            <script>
+      $(document).ready(function() { $("#select-courses-select").select2({
+
+  initSelection: function(element, callback) {
+    var selection = _.find(data, function(metric){ 
+      return metric.id === element.val();
+    })
+    callback(selection);
+  },
+  query: function(options){
+    var pageSize = 100;
+    var startIndex  = (options.page - 1) * pageSize;
+    var filteredData = data;
+
+    if( options.term && options.term.length > 0 ){
+      if( !options.context ){
+        var term = options.term.toLowerCase();
+        options.context = data.filter( function(metric){
+          return ( metric.text.toLowerCase().indexOf(term) !== -1 );
+        });
+      }
+      filteredData = options.context;
+    }
+
+    options.callback({
+      context: filteredData,
+      results: filteredData.slice(startIndex, startIndex + pageSize),
+      more: (startIndex + pageSize) < filteredData.length
+    });
+  },
+});
+      </script>
+      <!-- Modals -->
+          <script type="text/javascript">
+              $(function(){
+                        $('#trigger-editcourse').click(function(){
+                          $('#editcourse').modal('show');
+                          return false;
+                        })
+                    });    
+              $(function(){
+                        $('#trigger-about').click(function(){
+                          $('#about').modal('show');
+                          return false;
+                        })
+                    });
+                                $(function(){
+                        $('#trigger-faq').click(function(){
+                          $('#faq').modal('show');
+                          return false;
+                        })
+                    });
+                                $(function(){
+                        $('#trigger-contact').click(function(){
+                          $('#contact').modal('show');
+                          return false;
+                        })
+                    });
+         jQuery(function($) {
+            $('form[data-async]').live('submit', function(event) {
+                var $form = $(this);
+                var $target = $($form.attr('data-target'));
+
+                $.ajax({
+                    type: $form.attr('method'),
+                    url: $form.attr('action'),
+                    data: $form.serialize(),
+
+                    success: function(data, status) {
+                        $target.html(data);
+                    }
+                });
+
+                event.preventDefault();
+            });
+        });
+        $(window).load(function(){
+        $('#prompt').modal('hide');
+            return false;
+        });
+              $(function(){
+                        $('#trigger-prompt').click(function(){
+                          $('#prompt').modal('show');
+                          return false;
+                        })
+                    });
+        </script>
+
+  </head>
+  <body>
+    <div id="wrap">
+    <form method="POST" enctype="multipart/form-data" action="save.php" id="myForm">
+	<input type="hidden" name="img_val" id="img_val" value="" />
+</form>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle Navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">The Timetable Generator</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li>
+          <a href="#" class="school">McMaster University <b class="caret"></b></a>
+        </li>
+      </ul>
+<div class="nav navbar-nav navbar-left input-group">
+      <form class="navbar-form navbar-left" role="search">
+          <div class="form-group">
+              <select id="select-courses-select" class="form-control select2-multiple" style="width:300px;" placeholder="Select a course.."></select>
+            <span class="input-group-btn"><button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span></button></span>
+          </div>
+      </form>
+ </div>
+        
+      <ul class="nav navbar-nav navbar-right" style="margin-right: -30px;">
+        <form class="navbar-form navbar-left" role="meta">
+            <div class="btn-group">
+                        <button type="submit" class="btn btn-default" onclick="$('#get-link').modal('show');return false;"><span class="glyphicon glyphicon-link"></span></button>
+                        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-wrench"></span></button>
+                      <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-user"></span></button>
+                </div>
+           
+      </form>
+      </ul>
+    </div>
+  </div>
+</nav>
+      <div class="container">
+          <table width="100%">
+              <tr><td width="18%" class="selected-courses">
+          <div class="list">
+              <h4>Current Courses</h4>
+<table width="100%" class="side">
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course1"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div></td>
+    </tr>
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course2"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse" onclick="$('#editcourse').modal('show');return false;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div></td>
+    </tr>
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course3"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse" onclick="$('#editcourse').modal('show');return false;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div></td>
+    </tr>
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course4"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse" onclick="$('#editcourse').modal('show');return false;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div></td>
+    </tr>
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course5"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse" onclick="$('#editcourse').modal('show');return false;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div></td>
+    </tr>
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course6"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse" onclick="$('#editcourse').modal('show');return false;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div></td>
+    </tr>
+    <tr>
+            <td width="20%" style="selected-courses">
+                  <div class="color-ind course7"></div>
+            </td><td><div class="sidebar-course" id="trigger-editcourse" onclick="$('#editcourse').modal('show');return false;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="course-descr">Cellular & Molecular Biol..</span>
+            </div><div class="manage-course">
+                <span class="glyphicon glyphicon-remove"></span>
+            </div>
+        </td>
+    </tr>
+    
+
+            </table>
+          </div>
+    </td>
+   <td>
+          <div class="tabbed-fluid" style="position:relative;top:60px;width:100%;">
+          <ul class="nav nav-tabs" style="margin-right:-15px;">
+  <li style=""><a href="#term1" data-toggle="tab">Term 1</a></li>
+  <li class="active" style=""><a href="#term2" data-toggle="tab">Term 2</a></li>
+  <li><a href="#term3" data-toggle="tab" style="">Term 3</a></li>
+</ul>
+              <div class="navbar-right" style="position:relative;display:block;top:-45px;margin-bottom:-50px;margin-right:-15px;">
+                  <p class="navbar-text" style="margin-right:0px;">
+              <a href="#" target="_blank">Browse All Course Offerings</a></p>
+              </div>
+
+    <div id="content" class="tab-content" style="margin-top:10px;">
+      <div class="tab-pane" id="term1">         
+    <div class="timetable" style="margin:0px -15px 70px 0px; position:relative;">
+    <table class="table table-bordered table-condensed" style="text-align:center;z-index:1;">
+      <thead>
+        <tr>
+          <th class="col-sm-1" style="width: 10%;"></th>
+          <th class="col-lg-2" style="width: 15%;">Monday</th>
+          <th class="col-sm-2" style="width: 15%;">Tuesday</th>
+          <th class="col-sm-2" style="width: 15%;">Wednesday</th>
+          <th class="col-sm-2" style="width: 15%;">Thursday</th>
+          <th class="col-sm-2" style="width: 15%;">Friday</th>
+          <th class="col-sm-2" style="width: 15%;">Saturday</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:2px;">08:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">08:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+              <div class="course-container" onclick="$('#editcourse').modal('show');return false;">
+            <div class="course-details course1" style="height:59px;padding:12px 2px 12px 2px;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="label label-warning">L10</span>
+                <span class="course-descr">8:30 to 9:50 in CNH/106</span>  
+            </div>
+            </div>
+              </td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">09:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+            <div class="course-container" onclick="$('#editcourse').modal('show');return false;">
+            <div class="course-details">
+                <span class="course-code">BIO 1A03</span>
+                <span class="label label-primary">C02</span>
+                <span class="course-descr">9:00 to 9:50 in CNH/106</span>  
+            </div>
+            </div>
+              </td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">09:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+   
+              </td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">10:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+         <tr>
+          <td style="padding:2px;">10:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">11:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">11:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">12:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">12:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">13:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">13:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">14:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">14:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">15:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">15:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">16:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">16:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">17:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">17:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">18:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">18:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">19:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">19:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">20:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">20:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">21:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">21:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">22:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">22:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+      </tbody>
+    </table>
+              
+  </div><!---end timetable--->
+      </div><!---end one tab--->
+ 
+      <div class="tab-pane active" id="term2">         
+    <div class="timetable" style="margin:0px -15px 70px 0px; position:relative;">
+    <table class="table table-bordered table-condensed" style="text-align:center;z-index:1;">
+      <thead>
+        <tr>
+          <th class="col-sm-1" style="width: 10%;"></th>
+          <th class="col-lg-2" style="width: 15%;">Monday</th>
+          <th class="col-sm-2" style="width: 15%;">Tuesday</th>
+          <th class="col-sm-2" style="width: 15%;">Wednesday</th>
+          <th class="col-sm-2" style="width: 15%;">Thursday</th>
+          <th class="col-sm-2" style="width: 15%;">Friday</th>
+          <th class="col-sm-2" style="width: 15%;">Saturday</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:2px;">08:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">08:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+              <div class="course-container" onclick="$('#editcourse').modal('show');return false;">
+            <div class="course-details" style="height:59px;padding:12px 2px 12px 2px;">
+                <span class="course-code">BIO 1A03</span>
+                <span class="label label-warning">L10</span>
+                <span class="course-descr">8:30 to 9:50 in CNH/106</span>  
+            </div>
+            </div>
+              </td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">09:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+            <div class="course-container" onclick="$('#editcourse').modal('show');return false;">
+            <div class="course-details">
+                <span class="course-code">BIO 1A03</span>
+                <span class="label label-primary">C02</span>
+                <span class="course-descr">9:00 to 9:50 in CNH/106</span>  
+            </div>
+            </div>
+              </td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">09:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+                          <div class="course-container" onclick="$('#editcourse').modal('show');return false;">
+            <div class="course-details">
+                <span class="course-code">BIO 1A03</span>
+                <span class="label label-info">T02</span>
+                <span class="course-descr">9:30 to 10:20 in CNH/106</span>  
+            </div>
+            </div>
+              </td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">10:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+         <tr>
+          <td style="padding:2px;">10:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">11:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">11:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">12:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">12:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">13:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">13:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">14:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">14:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">15:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">15:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">16:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">16:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">17:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">17:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">18:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">18:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">19:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">19:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">20:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">20:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">21:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">21:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">22:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">22:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+      </tbody>
+    </table>
+              
+  </div><!---end timetable--->
+      </div><!---end one tab--->
+        
+              <div class="tab-pane" id="term3">         
+    <div class="timetable" style="margin:0px -15px 70px 0px; position:relative;">
+    <table class="table table-bordered table-condensed" style="text-align:center;z-index:1;">
+      <thead>
+        <tr>
+          <th class="col-sm-1" style="width: 10%;"></th>
+          <th class="col-lg-2" style="width: 15%;">Monday</th>
+          <th class="col-sm-2" style="width: 15%;">Tuesday</th>
+          <th class="col-sm-2" style="width: 15%;">Wednesday</th>
+          <th class="col-sm-2" style="width: 15%;">Thursday</th>
+          <th class="col-sm-2" style="width: 15%;">Friday</th>
+          <th class="col-sm-2" style="width: 15%;">Saturday</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:2px;">08:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">08:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+   
+              </td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">09:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+ 
+              </td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">09:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;">
+                          <div class="course-container" onclick="$('#editcourse').modal('show');return false;">
+            <div class="course-details">
+                <span class="course-code">BIO 1A03</span>
+                <span class="label label-info">T02</span>
+                <span class="course-descr">9:30 to 10:20 in CNH/106</span>  
+            </div>
+            </div>
+              </td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+          <tr>
+          <td style="padding:2px;">10:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+         <tr>
+          <td style="padding:2px;">10:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">11:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">11:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">12:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">12:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">13:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">13:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">14:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">14:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">15:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">15:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">16:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">16:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">17:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">17:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">18:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">18:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">19:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">19:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">20:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">20:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">21:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">21:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">22:00</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+        <tr>
+          <td style="padding:2px;">22:30</td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+          <td style="padding:0px;"></td>
+        </tr>
+      </tbody>
+    </table>
+              
+  </div><!---end timetable--->
+      </div><!---end one tab--->
+ 
+</div><!--end 3 tabs container--->
+  </div><!---end container-->
+      
+</div></table>
+      
+      
+      </td></tr></div>
+
+    
+
+      
+<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation" style="margin-bottom:0px;">
+  <div class="container">
+    <p class="navbar-text"><span class="text-muted credit" style="font-size: 11px;">Facebook / Donate</span></p>
+
+          <div class="navbar-right"><p class="navbar-text"><span class="text-muted credit" style="font-size: 11px;">
+              <a href="#" id="trigger-about">About</a> / <a href="#" id="trigger-faq">FAQ</a> / <a href="#" id="trigger-contact">Contact</a></span></p></div>
+  </div>
+</nav>
+      
+<!-- Modals -->
+          <div class="modal fade" id="editcourse">
+  <div class="modal-dialog" style="top:100px; width:390px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Edit BIO 1A03</h4></div>
+      <div class="modal-body">
+
+          <div class="form-group">
+              <div class="col-lg-4">
+              <select id="select-core" class="form-control select2-multiple">
+                    <option value="AK">C01</option>
+                    <option value="HI">C02</option>
+                    <option value="AL">C03</option>
+            </select></div><div class="col-lg-4">
+              <select id="select-tut" class="form-control select2-multiple">
+                    <option value="AK">T01</option>
+                    <option value="HI">T02</option>
+                    <option value="AL">T03</option>
+            </select></div><div class="col-lg-4">
+              <select id="select-lab" class="form-control select2-multiple">
+                    <option value="AK">L01</option>
+                    <option value="HI">L02</option>
+                    <option value="AL">L03</option>
+            </select></div><br /><br /><div class="col-lg-12" style="text-align:center;line-height:40px;">
+              <span class="input-btn"><button type="submit" class="btn btn-success" onclick="$('#prompt').modal('hide');return false;">Save Changes to BIO 1A03</span></div>     
+        </div>              <br /><center><span class="text-muted credit" style="font-size: 11px;line-height:20px;">Or, <a href="#">remove this course</a> from your timetable.</center>
+   
+    </div>
+  </div>
+</div></div>
+      
+      <div class="modal fade" id="get-link">
+  <div class="modal-dialog" style="top:100px; width:600px;height:400px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Share Your Timetable</h4></div>
+      <div class="modal-body">
+
+      <div class="col-lg-12"><div class="input-group"><input type="text" class="form-control" value="http://timetablegenerator.com/3ue82892.png">
+              <span class="input-group-btn">
+        <button class="btn btn-default" type="button" onclick="capture();return false;">Open Link</button>
+      </span>
+    </div>
+          <br />
+          </div> <br /><center><span class="text-muted credit" style="font-size: 11px;line-height:20px;">
+<strong>Tip: </strong>You can <a href="#">log in to Timetable Generator</a> to save your timetable and make changes later.</center>
+    </div>
+  </div>
+</div></div>
+    
+<div class="modal fade" id="prompt">
+  <div class="modal-dialog" style="top:100px; width: 500px;">
+    <div class="modal-content">
+
+      <div class="modal-body">
+          <center><h4>To begin, please select your university.</h4></center>
+          <div class="nav navbar-nav navbar-left input-group" style="margin-bottom:-20px;">
+      <form class="navbar-form">
+
+          <div class="form-group">
+              
+              <select id="select-school" class="form-control select2-multiple" style="width:370px;">
+
+                    <option value="AK">McMaster University</option>
+                    <option value="HI">University of Western Ontario</option>
+                    <option value="AL">University of Toronto</option>
+            </select>
+              
+            <span class="input-group-btn"><button type="submit" class="btn btn-primary" onclick="$('#prompt').modal('hide');return false;">Start</span>
+          </div>
+              </form></div>
+              &nbsp;<br /><br />
+   <center><span class="text-muted credit" style="font-size: 11px;">For the time being, I am ignoring function and focusing on design. Most objects<br />currently <strong><i>do not work</i></strong>, and are only placeholders for their functional counterparts.</center>
+    </div>
+  </div>
+</div></div>
+      
+<div class="modal fade" id="about" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="top:100px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">About the Timetable Generator</h4>
+      </div>
+      <div class="modal-body">
+Nam vel feugiat est, interdum ultricies lacus. Morbi aliquam massa in nisi cursus placerat. Donec quis tellus sit amet quam vestibulum consectetur. Praesent tincidunt, erat sed pretium interdum, felis purus sagittis dolor, ac condimentum quam lacus non turpis. <br /><br />Maecenas non nibh in orci pharetra rutrum. Sed massa nunc, hendrerit at rutrum a, rutrum vel purus. Sed hendrerit consectetur nisl. <br /><br />Pellentesque malesuada lacus at semper sagittis.</div>
+          <div class="modal-footer" style="text-align:center;">
+        <span class="text-muted credit">Created by <a href="#">Dillon Dixon</a> and Designed by <a href="#">Ellen Li</a></span>
+      </div>
+   
+    </div>
+  </div>
+</div>
+      
+      <div class="modal fade" id="faq" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="top:100px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Frequently Asked Questions</h4>
+      </div>
+      <div class="modal-body">
+       <strong>Can you add my school?</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras non justo vitae sem varius gravida.
+          <br /><br />
+          <strong>Why aren't my courses loading?</strong> Cras pretium sagittis mi nec laoreet. Nullam consequat fringilla risus, eu adipiscing justo adipiscing in. Ut ultricies libero sed turpis pulvinar mollis. Phasellus iaculis nulla id mauris tempor faucibus. Pellentesque ac lacus varius, accumsan ligula eget, fermentum elit. Aliquam at sem diam. Ut vitae facilisis dolor.
+          <br /><br />
+          <strong>Can you make a mobile version of this software?</strong> Duis ac commodo tortor.
+        
+        </div>
+   
+    </div>
+  </div>
+</div>
+      
+<div class="modal fade" id="contact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="top:100px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Contact Us</h4>
+      </div>
+  <div class="modal-body">
+      
+<form role="form">
+    <div class="form-group">
+    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Your Name">
+  </div>
+  <div class="form-group">
+    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email Address">
+  </div>
+      <div class="form-group">
+<textarea class="form-control" rows="7" placeholder="Questions, comments, or suggestions? ..."></textarea>      
+  </div>
+  
+    </div>
+  
+          <div class="modal-footer" style="margin-top:-10px;">
+    <button type="button" class="btn btn-primary">Send</button></form>
+  </div>
+   
+    </div>
+  </div>
+</div>
+      
+<!-- necessary for dropdown menu functionality --->
+<script src="js/bootstrap.min.js"></script>    
+</body>
+</html>

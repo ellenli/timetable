@@ -1,0 +1,114 @@
+{
+   "school_id": "mcmaster",
+   "year": 2014,
+   "display_settings": {
+      "showDepHeader": true,
+      "hasTimeOfDay": true,
+      "hasSerialNumbers": false,
+      "hasEnrollment": false,
+      "hasWaitList": false
+   },
+   "name": "McMaster University",
+   "term": 13,
+   "departments": {
+      "OJIBWE": {
+         "courses": {
+            "OJIBWE1Z03152": {
+               "timeofday": "N",
+               "code": "1Z03",
+               "name": "INTRO:OJIB.LANG.",
+               "term": 15,
+               "units": 3,
+               "sections": {}
+            },
+            "OJIBWE2Z03152": {
+               "timeofday": "N",
+               "code": "2Z03",
+               "name": "INTERMED. OJIBWE",
+               "term": 15,
+               "units": 3,
+               "sections": {}
+            }
+         },
+         "name": "OJIBWE"
+      },
+      "GEN TECH": {
+         "courses": {
+            "GEN TECH3T03152": {
+               "timeofday": "N",
+               "code": "3T03",
+               "name": "TECHNOLOGY AND MANAGEMENT",
+               "term": 15,
+               "units": 3,
+               "sections": {}
+            },
+            "GEN TECH3FS3131": {
+               "timeofday": "N",
+               "code": "3FS3",
+               "name": "FINANCIAL SYSTEMS:TECH ORGS",
+               "term": 13,
+               "units": 3,
+               "sections": {"C": {"C01": {
+                  "alternating": false,
+                  "cancelled": false,
+                  "daytimes": [{
+                     "start": [
+                        9,
+                        0
+                     ],
+                     "location": "ETB/224",
+                     "term": 6,
+                     "end": [
+                        12,
+                        0
+                     ],
+                     "type": "R",
+                     "day": 6,
+                     "supervisors": []
+                  }]
+               }}}
+            },
+            "GEN TECH1CS3152": {
+               "timeofday": "N",
+               "code": "1CS3",
+               "name": "COMMUNICATION SKILLS I",
+               "term": 15,
+               "units": 3,
+               "sections": {}
+            },
+            "GEN TECH4EM3131": {
+               "timeofday": "N",
+               "code": "4EM3",
+               "name": "LEGAL & REGULATORY ISSUES",
+               "term": 13,
+               "units": 3,
+               "sections": {"C": {"C01": {
+                  "alternating": false,
+                  "cancelled": false,
+                  "daytimes": [{
+                     "start": [
+                        18,
+                        30
+                     ],
+                     "location": "ETB/227",
+                     "term": 6,
+                     "end": [
+                        21,
+                        30
+                     ],
+                     "type": "R",
+                     "day": 1,
+                     "supervisors": []
+                  }]
+               }}}
+            }
+         },
+         "name": "GENERAL TECHNOLOGY"
+      }
+   },
+   "section_types": {
+      "C": "Core",
+      "T": "Tutorial",
+      "L": "Lab"
+   }
+}

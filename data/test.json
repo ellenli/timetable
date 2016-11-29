@@ -1,0 +1,25 @@
+{
+   "school_id": "mcmaster",
+   "year": 2014,
+   "name": "McMaster University",
+   "term": 13,
+    "users":[
+        {
+            "firstName":"Ray",
+            "lastName":"Villalobos",
+            "joined": {
+                "month":"January",
+                "day":12,
+                "year":2012
+            }
+        },
+        {
+            "firstName":"John",
+            "lastName":"Jones",
+            "joined": {
+                "month":"April",
+                "day":28,
+                "year":2010
+            }
+        }
+]}

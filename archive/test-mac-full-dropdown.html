@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Test</title>
+        <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script>
+  $.getJSON("data/test-mac-full.json", function(data) {
+        var output="<select class='form-control select2-multiple' style='width:300px;'><option></option>";
+        for (var x in data.departments) { 
+                for (var y in data.departments[x].courses) {
+            output+="<option value='>" + y + "'>" + x + " " + data.departments[x].courses[y].code + "</option>";        
+                }
+        }
+        output+="</section>";
+ document.getElementById("place-holder").innerHTML=output;
+  });
+    </script>
+</head>
+<body>
+    <div id="place-holder"></div>
+</body>
+</html>
+
+
+

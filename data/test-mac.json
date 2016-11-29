@@ -1,0 +1,21 @@
+{
+   "school_id": "mcmaster",
+   "year": 2014,
+   "name": "McMaster University",
+   "term": 13,
+   "courses":[
+            {
+               "timeofday": "N",
+               "code": "1Z03",
+               "name": "INTRO:OJIB.LANG.",
+               "term": 15,
+               "units": 3
+            },
+            {
+               "timeofday": "N",
+               "code": "2Z03",
+               "name": "INTERMED. OJIBWE",
+               "term": 15,
+               "units": 3
+            }
+   ]}

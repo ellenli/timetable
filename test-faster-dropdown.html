@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Faster Select2</title>
+    <link href="css/style.css" rel="stylesheet"/>
+      
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    
+    <!-- Select2 -->
+    <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.js'></script>
+    <link href="select2/select2.css" rel="stylesheet"/>
+    <link href="select2/select2-bootstrap-2.css" rel="stylesheet"/>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js" rel="stylesheet"/>
+    <script src="select2/select2.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/generator2.js"></script>
+    <script type="text/javascript" src="js/html2canvas.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() { $("#select-courses-select").select2({
+          placeholder: "Select a course..",
+        }); });
+    </script>
+<script>
+  $.getJSON("data/mcmaster_2013_6.json", function(data) {
+        var output="<option></option>";
+        for (var x in data.departments) { 
+            output+="<optgroup label='" + data.departments[x].name + "'>";
+                for (var y in data.departments[x].courses) {
+            output+="<option value='>" + y + "'>" + x + " " + data.departments[x].courses[y].code + "</option>";        
+                }
+            output+="</optgroup>";
+        }
+        output+="";
+ document.getElementById("select-courses-select").innerHTML=output;
+
+  });
+    </script>
+
+  </head>
+  <body>
+          <div class="form-group">
+              <select id="select-courses-select" class="form-control select2-multiple" style="width:300px;" placeholder="Select a course.."></select>
+        
+          </div>
+      
+      
+<!-- necessary for dropdown menu functionality --->
+<script src="js/bootstrap.min.js"></script>    
+</body>
+</html>

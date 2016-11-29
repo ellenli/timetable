@@ -1,0 +1,65 @@
+body {
+	color: #333;
+	font-family: 'Arial', sans-serif;
+	font-size: 10px;
+	background-color: #eee;
+	overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Arial', sans-serif;
+	font-size: 22px;
+	text-shadow: 0 1px 0 #fff;
+	position: relative;
+	margin: 10px;
+	float: left;
+	display: block;
+	width: 100%;
+}
+
+.title {
+	
+	text-align: center;
+	font-weight: bold;
+	background: #ffffff;
+}
+
+#term1_details, #term2_details {
+	text-align: center;
+	background: #ffffff;
+}
+
+.term, th, .daytime_slot {
+	border-color: #000000;
+	border-style:solid;
+	border-width:1px;
+	border-collapse:collapse;
+	font-size: 9pt;
+	padding: 10px;
+}
+
+th {
+	background: #CDCDCB;
+	border-color: #000000;
+	border-style:solid;
+	border-width:1px;
+}
+
+th, .daytime_slot {
+	padding-top:2px;
+	padding-bottom:2px;
+	padding-right:5px;
+	padding-left:5px;
+}
+
+.daytime_slot {
+	text-align: center;
+	background: #ffffff;
+	width: 100px;
+}
+
+
+#term1_table, #term2_table {
+	position: relative;
+	margin: 50px;
+}
